@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.container {
+    width: 60%;
+    margin: 0 auto;
+    text-align: left;
+}
+form input[type="text"],
+form textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 1.1em;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+form button {
+    padding: 8px 16px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+.button-row {
+    display: flex;
+    align-items: center;
+}
+.button-row button {
+    margin-right: 10px;
+}
+</style>
+
+<div class="container">
+    <h2>编辑文章</h2>
+    <form method="POST">
+        <input type="text" name="edit_title" value="{{ article[0] }}" required><br>
+
+        <textarea id="edit_content" name="edit_content" rows="10" required>{{ article[1] }}</textarea><br>
+
+        <!-- 功能按钮并排放 -->
+        <div class="button-row">
+            <button type="button" onclick="toggleUnderline()">下划线</button>
+            <button type="submit">保存修改</button>
+            <a href="{{ url_for('article_detail', article_id=article_id) }}">取消</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleUnderline() {
+    const textarea = document.getElementById('edit_content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    if (start === end) return;
+
+    const selected = textarea.value.substring(start, end);
+
+    let newText;
+    if (selected.startsWith('<u>') && selected.endsWith('</u>')) {
+        newText = selected.slice(3, -4);
+    } else {
+        newText = `<u>${selected}</u>`;
+    }
+
+    textarea.value =
+        textarea.value.substring(0, start) +
+        newText +
+        textarea.value.substring(end);
+
+    textarea.setSelectionRange(start, start + newText.length);
+    textarea.focus();
+}
+</script>
+{% endblock %}

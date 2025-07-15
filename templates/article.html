@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ article[0]|e }}{% endblock %}
+
+{% block content %}
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.container {
+    width: 60%;
+    margin: 0 auto;
+    text-align: left;
+}
+.article-content {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+button, a.button-link {
+    padding: 8px 16px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-right: 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+}
+.edit-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+.edit-btn:hover {
+    background-color: #0056b3;
+}
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+.delete-btn:hover {
+    background-color: #a71d2a;
+}
+ul {
+    padding-left: 20px;
+    list-style-type: none;
+}
+.comment-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+.comment-content {
+    font-size: 1em;
+    margin-bottom: 6px;
+}
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: gray;
+}
+.comment-delete-form button {
+    background-color: #ff4d4d;
+    border: none;
+    color: white;
+    padding: 2px 8px;
+    font-size: 0.85em;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.comment-delete-form button:hover {
+    background-color: #e60000;
+}
+form textarea[name="comment"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+form button {
+    padding: 6px 12px;
+    font-size: 1em;
+    cursor: pointer;
+}
+</style>
+
+<div class="container">
+    <!-- 主标题，纯文本输出，防止 HTML 标签破坏结构 -->
+    <h2>{{ article[0]|e }}</h2>
+
+    <!-- EPUB工具备用隐藏标题 -->
+    <h1 style="display: none;">{{ article[0]|e }}</h1>
+
+    <!-- 内容部分，将换行符转成 <br> 标签并安全渲染 HTML（如下划线） -->
+    <div class="article-content">{{ article[1].replace('\n', '<br>')|safe }}</div>
+
+    <p><small>添加时间：{{ article[2] }}</small></p>
+
+    <div>
+        <a href="{{ url_for('article_edit', article_id=article_id) }}" class="button-link edit-btn">编辑</a>
+        <form method="POST" action="{{ url_for('delete_article', article_id=article_id) }}" style="display:inline;" onsubmit="return confirm('确认删除这篇文章？此操作不可恢复！');">
+            <button type="submit" class="delete-btn">删除</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <h3>评论</h3>
+    <ul>
+        {% for comment in comments %}
+            <li class="comment-item">
+                <div class="comment-content">{{ comment[1] }}</div>
+                <div class="comment-meta">
+                    <div class="comment-time">添加时间：{{ comment[2] }}</div>
+                    <form class="comment-delete-form" method="POST" action="{{ url_for('delete_comment', comment_id=comment[0], article_id=article_id) }}" onsubmit="return confirm('确认删除这条评论？');">
+                        <button type="submit">删除</button>
+                    </form>
+                </div>
+            </li>
+        {% else %}
+            <li>暂无评论。</li>
+        {% endfor %}
+    </ul>
+
+    <form method="POST">
+        <textarea name="comment" placeholder="添加评论..." rows="4" required></textarea><br>
+        <button type="submit">提交评论</button>
+    </form>
+</div>
+{% endblock %}
